@@ -117,9 +117,49 @@ if [ -d "$GSD_SOURCE/references" ]; then
     cp -r "$GSD_SOURCE/references/"* "$GSD_DEST/references/" 2>/dev/null || true
 fi
 
-# Workflows are now globally available at ~/.agent/get-shit-done/workflows/
-# Users reference them via @[workflow-name.md] in their projects
-# No project-level symlinks created - keeps projects clean
+# Optional: Set up workflows for a specific project
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}  Optional: Project Setup${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo "Would you like to set up workflows for a specific project?"
+echo "This creates .agent/workflows/ symlinks in your project directory."
+echo ""
+read -p "Enter project directory path (or press Enter to skip): " PROJECT_DIR
+
+if [ -n "$PROJECT_DIR" ]; then
+    # Expand ~ to home directory
+    PROJECT_DIR="${PROJECT_DIR/#\~/$HOME}"
+    
+    # Create directory if it doesn't exist
+    if [ ! -d "$PROJECT_DIR" ]; then
+        echo -e "${YELLOW}Directory doesn't exist. Create it? (y/n)${NC}"
+        read -p "> " CREATE_DIR
+        if [ "$CREATE_DIR" = "y" ] || [ "$CREATE_DIR" = "Y" ]; then
+            mkdir -p "$PROJECT_DIR"
+            echo -e "${GREEN}✓${NC} Created directory: $PROJECT_DIR"
+        else
+            echo -e "${YELLOW}Skipped project setup${NC}"
+            PROJECT_DIR=""
+        fi
+    fi
+    
+    if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
+        echo -e "${GREEN}→${NC} Setting up workflows in: $PROJECT_DIR"
+        mkdir -p "$PROJECT_DIR/.agent/workflows"
+        
+        # Create symlinks
+        for workflow in "$GSD_DEST/workflows/"*.md; do
+            workflow_name=$(basename "$workflow")
+            ln -sf "$GSD_DEST/workflows/$workflow_name" "$PROJECT_DIR/.agent/workflows/$workflow_name" 2>/dev/null || true
+        done
+        
+        echo -e "${GREEN}✓${NC} Created workflow symlinks in $PROJECT_DIR/.agent/workflows/"
+    fi
+else
+    echo -e "${BLUE}→${NC} Skipped project setup. Workflows available globally at ~/.agent/get-shit-done/"
+fi
 
 # Create README
 cat > "$GSD_DEST/README.md" << 'EOF'
