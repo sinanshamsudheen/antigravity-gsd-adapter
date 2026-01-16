@@ -13,8 +13,9 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-AGENT_DIR="$HOME/.agent"
-GSD_DEST="$AGENT_DIR/get-shit-done"
+# Antigravity looks for workflows in ~/.gemini, not ~/.agent
+GEMINI_DIR="$HOME/.gemini"
+GSD_DEST="$GEMINI_DIR/get-shit-done"
 
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}  Get-Shit-Done Setup for Antigravity${NC}"
@@ -100,8 +101,8 @@ update_paths() {
     local file="$1"
     
     # Update .claude -> .agent
-    sed -i 's|~/.claude/get-shit-done|~/.agent/get-shit-done|g' "$file"
-    sed -i 's|\.claude/get-shit-done|.agent/get-shit-done|g' "$file"
+    sed -i 's|~/.claude/get-shit-done|~/.gemini/get-shit-done|g' "$file"
+    sed -i 's|\.claude/get-shit-done|.gemini/get-shit-done|g' "$file"
     
     # Note: .planning/ paths are intentionally left unchanged (project-specific)
 }
@@ -198,7 +199,7 @@ if [ -n "$PROJECT_DIR" ]; then
         echo -e "${GREEN}✓${NC} Created workflow symlinks in $PROJECT_DIR/.agent/workflows/"
     fi
 else
-    echo -e "${BLUE}→${NC} Skipped project setup. Workflows available globally at ~/.agent/get-shit-done/"
+    echo -e "${BLUE}→${NC} Skipped project setup. Workflows available globally at ~/.gemini/get-shit-done/"
 fi
 
 # Create README
@@ -302,7 +303,7 @@ Use workflow: transition.md
 ## Directory Structure
 
 ```
-~/.agent/get-shit-done/
+~/.gemini/get-shit-done/
 ├── workflows/          # All workflow definitions
 ├── templates/          # Templates for artifacts
 ├── references/         # Reference documentation
@@ -356,7 +357,7 @@ GSD enforces:
 
 ## Support
 
-For detailed workflow instructions, view the individual workflow files in `~/.agent/get-shit-done/workflows/`
+For detailed workflow instructions, view the individual workflow files in `~/.gemini/get-shit-done/workflows/`
 
 Each workflow contains:
 - Purpose and context
