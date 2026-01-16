@@ -37,15 +37,55 @@ elif [ -d "$HOME/get-shit-done/workflows" ]; then
     GSD_SOURCE="$HOME/get-shit-done"
 fi
 
-# Check if source directory exists and has expected structure
+# If not found, offer to clone it automatically
 if [ -z "$GSD_SOURCE" ] || [ ! -d "$GSD_SOURCE/workflows" ]; then
-    echo -e "${YELLOW}Error: get-shit-done workflows not found${NC}"
+    echo -e "${YELLOW}→${NC} get-shit-done repository not found locally"
     echo ""
-    echo "Please ensure you have cloned the original repository:"
-    echo "  git clone https://github.com/glittercowboy/get-shit-done"
+    echo "Would you like to clone it automatically?"
+    echo "Repository: https://github.com/glittercowboy/get-shit-done"
     echo ""
-    echo "The setup script searches for workflows in multiple locations."
-    echo "Make sure the repository is cloned in the same or parent directory."
+    read -p "Clone now? (Y/n): " CLONE_RESPONSE
+    
+    # Default to yes if user just presses Enter
+    CLONE_RESPONSE=${CLONE_RESPONSE:-Y}
+    
+    if [ "$CLONE_RESPONSE" = "y" ] || [ "$CLONE_RESPONSE" = "Y" ]; then
+        echo -e "${GREEN}→${NC} Cloning get-shit-done..."
+        
+        # Clone to parent directory
+        CLONE_DIR="../get-shit-done"
+        if ! git clone https://github.com/glittercowboy/get-shit-done "$CLONE_DIR" 2>/dev/null; then
+            # If parent fails, try current directory
+            CLONE_DIR="./get-shit-done"
+            if ! git clone https://github.com/glittercowboy/get-shit-done "$CLONE_DIR" 2>/dev/null; then
+                echo -e "${YELLOW}Error: Failed to clone repository${NC}"
+                echo "Please ensure you have git installed and internet connection."
+                exit 1
+            fi
+        fi
+        
+        # Find the workflows in cloned repo
+        if [ -d "$CLONE_DIR/get-shit-done/workflows" ]; then
+            GSD_SOURCE="$CLONE_DIR/get-shit-done"
+        elif [ -d "$CLONE_DIR/workflows" ]; then
+            GSD_SOURCE="$CLONE_DIR"
+        fi
+        
+        echo -e "${GREEN}✓${NC} Repository cloned successfully"
+    else
+        echo ""
+        echo -e "${YELLOW}Setup cancelled.${NC}"
+        echo ""
+        echo "To run setup, you need the get-shit-done repository."
+        echo "Clone it manually with:"
+        echo "  git clone https://github.com/glittercowboy/get-shit-done"
+        exit 0
+    fi
+fi
+
+# Final check
+if [ -z "$GSD_SOURCE" ] || [ ! -d "$GSD_SOURCE/workflows" ]; then
+    echo -e "${YELLOW}Error: Could not locate get-shit-done workflows${NC}"
     exit 1
 fi
 
