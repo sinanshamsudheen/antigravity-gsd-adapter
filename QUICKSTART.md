@@ -5,15 +5,11 @@
 ## Installation (Run in order)
 
 ```bash
-# 1. Clone original get-shit-done
-cd ~/Downloads
-git clone https://github.com/glittercowboy/get-shit-done
-
-# 2. Clone this adapter
-git clone https://github.com/yourusername/antigravity-gsd-adapter
+# 1. Clone this adapter
+git clone https://github.com/sinanshamsudheen/antigravity-gsd-adapter
 cd antigravity-gsd-adapter
 
-# 3. Run setup
+# 2. Run setup (it will auto-clone get-shit-done if needed)
 chmod +x setup-gsd.sh
 ./setup-gsd.sh
 ```

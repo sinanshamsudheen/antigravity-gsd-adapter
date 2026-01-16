@@ -35,26 +35,20 @@ Get-Shit-Done (GSD) is a comprehensive workflow system originally built for Clau
 
 ### Installation
 
-**Step 1: Clone the original get-shit-done repository**
+**One-command setup:**
 
 ```bash
-cd ~/Downloads  # or wherever you keep repos
-git clone https://github.com/glittercowboy/get-shit-done
-```
-
-**Step 2: Clone this adapter**
-
-```bash
-git clone https://github.com/yourusername/antigravity-gsd-adapter
+git clone https://github.com/sinanshamsudheen/antigravity-gsd-adapter
 cd antigravity-gsd-adapter
-```
-
-**Step 3: Run the setup script**
-
-```bash
 chmod +x setup-gsd.sh
 ./setup-gsd.sh
 ```
+
+The script will:
+1. **Auto-detect** if get-shit-done repo exists locally
+2. **Offer to clone it** if not found (just press Enter to confirm)
+3. **Install globally** to `~/.agent/get-shit-done/`
+4. **Optionally set up** workflows for a specific project directory
 
 **That's it!** 🎉
 
