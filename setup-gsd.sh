@@ -117,15 +117,9 @@ if [ -d "$GSD_SOURCE/references" ]; then
     cp -r "$GSD_SOURCE/references/"* "$GSD_DEST/references/" 2>/dev/null || true
 fi
 
-# Create project-level symlinks
-echo -e "${GREEN}→${NC} Setting up project workflows..."
-mkdir -p .agent/workflows
-
-# Symlink all workflows to project
-for workflow in "$GSD_DEST/workflows/"*.md; do
-    workflow_name=$(basename "$workflow")
-    ln -sf "$GSD_DEST/workflows/$workflow_name" ".agent/workflows/$workflow_name" 2>/dev/null || true
-done
+# Workflows are now globally available at ~/.agent/get-shit-done/workflows/
+# Users reference them via @[workflow-name.md] in their projects
+# No project-level symlinks created - keeps projects clean
 
 # Create README
 cat > "$GSD_DEST/README.md" << 'EOF'
