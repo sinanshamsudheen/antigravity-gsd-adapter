@@ -35,7 +35,7 @@ Antigravity will create `.planning/REQUIREMENTS.md` with ~40-50 structured requi
 ### Step 3: Create Project Brief
 ```
 Prompt:
-"Create the project brief using @[discovery-phase.md]"
+"Create the project brief /discovery-phase"
 ```
 
 **Expected outcome:**  
@@ -44,7 +44,7 @@ Prompt:
 ### Step 4: Build Roadmap
 ```
 Prompt:
-"Build a roadmap using @[create-roadmap.md]"
+"Build a roadmap /create-roadmap"
 ```
 
 **Expected outcome:**  
@@ -60,7 +60,7 @@ Prompt:
 ### Step 5: Plan Phase 1
 ```
 Prompt:
-"Plan Phase 1 using @[plan-phase.md]"
+"Plan Phase 1 /plan-phase"
 ```
 
 **Expected outcome:**  
@@ -69,7 +69,7 @@ Prompt:
 ### Step 6: Execute First Plan
 ```
 Prompt:
-"Execute plan 01 using @[execute-plan.md]"
+"Execute plan 01 /execute-plan"
 ```
 
 **Expected outcome:**  

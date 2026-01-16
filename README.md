@@ -94,17 +94,17 @@ Repeat for next phase
 
 ```
 Prompt to Antigravity:
-"I have a PRD for a task management app. Use @[define-requirements.md] 
+"I have a PRD for a task management app. /define-requirements 
 to extract structured requirements."
 ```
 
 **2. Let Antigravity guide you through the workflows**
 
 ```
-Prompt: "Create project brief using @[discovery-phase.md]"
-Prompt: "Build roadmap using @[create-roadmap.md]"
-Prompt: "Plan Phase 1 with @[plan-phase.md]"
-Prompt: "Execute plan 01 with @[execute-plan.md]"
+Prompt: "Create project brief using /discovery-phase"
+Prompt: "Build roadmap using /create-roadmap"
+Prompt: "Plan Phase 1 with /plan-phase"
+Prompt: "Execute plan 01 with /execute-plan"
 ```
 
 **3. Watch your project take shape**

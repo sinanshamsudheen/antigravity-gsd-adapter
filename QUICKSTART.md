@@ -32,7 +32,9 @@ cd examples
 ### 3. Use It In Your Project
 ```
 Tell Antigravity:
-"I have a PRD.md. Use @[define-requirements.md] to extract requirements"
+"I have a PRD.md. /define-requirements
+
+Or just type "/" to see all available workflows!"
 ```
 
 ---
