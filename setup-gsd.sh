@@ -13,7 +13,6 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-GSD_SOURCE="./get-shit-done"
 AGENT_DIR="$HOME/.agent"
 GSD_DEST="$AGENT_DIR/get-shit-done"
 
@@ -22,20 +21,39 @@ echo -e "${BLUE}  Get-Shit-Done Setup for Antigravity${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-# Check if source directory exists
-if [ ! -d "$GSD_SOURCE" ]; then
-    echo -e "${YELLOW}Error: $GSD_SOURCE not found${NC}"
-    echo "Please run this script from the Arxis directory"
+# Find get-shit-done directory (looking for workflows folder as marker)
+GSD_SOURCE=""
+if [ -d "./get-shit-done/get-shit-done/workflows" ]; then
+    GSD_SOURCE="./get-shit-done/get-shit-done"
+elif [ -d "./get-shit-done/workflows" ]; then
+    GSD_SOURCE="./get-shit-done"
+elif [ -d "../get-shit-done/get-shit-done/workflows" ]; then
+    GSD_SOURCE="../get-shit-done/get-shit-done"
+elif [ -d "../get-shit-done/workflows" ]; then
+    GSD_SOURCE="../get-shit-done"
+elif [ -d "$HOME/get-shit-done/get-shit-done/workflows" ]; then
+    GSD_SOURCE="$HOME/get-shit-done/get-shit-done"
+elif [ -d "$HOME/get-shit-done/workflows" ]; then
+    GSD_SOURCE="$HOME/get-shit-done"
+fi
+
+# Check if source directory exists and has expected structure
+if [ -z "$GSD_SOURCE" ] || [ ! -d "$GSD_SOURCE/workflows" ]; then
+    echo -e "${YELLOW}Error: get-shit-done workflows not found${NC}"
+    echo ""
+    echo "Please ensure you have cloned the original repository:"
+    echo "  git clone https://github.com/glittercowboy/get-shit-done"
+    echo ""
+    echo "The setup script searches for workflows in multiple locations."
+    echo "Make sure the repository is cloned in the same or parent directory."
     exit 1
 fi
+
+echo -e "${GREEN}→${NC} Found get-shit-done at: $GSD_SOURCE"
 
 # Create agent directory structure
 echo -e "${GREEN}→${NC} Creating directory structure..."
 mkdir -p "$GSD_DEST"/{workflows,templates,references}
-
-# Copy VERSION file
-echo -e "${GREEN}→${NC} Copying version information..."
-cp "$GSD_SOURCE/VERSION" "$GSD_DEST/VERSION"
 
 # Function to update paths in a file
 update_paths() {
@@ -279,7 +297,6 @@ echo -e "${GREEN}  ✓ Get-Shit-Done successfully installed!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo "Installation location: $GSD_DEST"
-echo "Version: $(cat "$GSD_DEST/VERSION")"
 echo ""
 echo -e "${BLUE}Next steps:${NC}"
 echo "  1. Read: $GSD_DEST/README.md"
