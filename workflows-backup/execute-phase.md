@@ -1,5 +1,3 @@
-<!-- REFERENCE ONLY: This workflow uses ClaudeCode-specific features not available in Antigravity. Use as reference for understanding the GSD methodology, but adapt for Antigravity usage. -->
-
 <purpose>
 Execute all plans in a phase using wave-based parallel execution. Orchestrator stays lean by delegating plan execution to subagents.
 </purpose>

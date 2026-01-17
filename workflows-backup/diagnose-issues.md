@@ -1,5 +1,3 @@
-<!-- REFERENCE ONLY: This workflow uses ClaudeCode-specific features not available in Antigravity. Use as reference for understanding the GSD methodology, but adapt for Antigravity usage. -->
-
 <purpose>
 Orchestrate parallel debug agents to investigate UAT gaps and find root causes.
 
