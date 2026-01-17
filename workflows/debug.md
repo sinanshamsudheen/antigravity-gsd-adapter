@@ -1,4 +1,4 @@
-# Debug Workflow (DEPRECATED)
+# Debug Workflow
 
 This workflow has been consolidated into the `gsd-debugger` agent.
 

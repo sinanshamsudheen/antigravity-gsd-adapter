@@ -1,4 +1,4 @@
-# DEPRECATED: Plan-Phase Workflow
+# Plan-Phase Workflow
 
 **This workflow has been consolidated into the gsd-planner agent.**
 

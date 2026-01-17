@@ -550,7 +550,7 @@ Use AskUserQuestion:
 <step name="execute">
 Execute each task in the prompt. **Deviations are normal** - handle them automatically using embedded rules below.
 
-1. Read the @context files listed in the prompt
+1. Read the @[context files] listed in the prompt
 
 2. For each task:
 

@@ -627,3 +627,14 @@ The orchestrator will:
 - [ ] VERIFICATION.md created with complete report
 - [ ] Results returned to orchestrator
 </success_criteria>
+
+
+<antigravity_tips>
+**Antigravity-specific best practices:**
+
+1. **Context management:** Use `/clear` before starting this workflow for fresh context
+2. **File references:** Antigravity autocompletes with @[filename] - use it throughout
+3. **Git integration:** Antigravity can run git commands directly - propose them clearly
+4. **Iterative refinement:** Antigravity excels at back-and-forth conversation
+5. **Show your work:** Present full outputs, not just summaries
+</antigravity_tips>

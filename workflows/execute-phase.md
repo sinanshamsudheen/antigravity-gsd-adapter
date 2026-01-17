@@ -299,7 +299,7 @@ Plans with `autonomous: false` require user interaction.
 8. **Repeat until plan completes or user stops**
 
 **Why fresh agent instead of resume:**
-Resume relies on Claude Code's internal serialization which breaks with parallel tool calls.
+Resume relies on Antigravity's internal serialization which breaks with parallel tool calls.
 Fresh agents with explicit state are more reliable and maintain full context.
 
 **Checkpoint in parallel context:**
@@ -542,3 +542,14 @@ If phase execution was interrupted (context limit, user exit, error):
 - Current wave
 - Any pending checkpoints
 </resumption>
+
+
+<antigravity_tips>
+**Antigravity-specific best practices:**
+
+1. **Context management:** Use `/clear` before starting this workflow for fresh context
+2. **File references:** Antigravity autocompletes with @[filename] - use it throughout
+3. **Git integration:** Antigravity can run git commands directly - propose them clearly
+4. **Iterative refinement:** Antigravity excels at back-and-forth conversation
+5. **Show your work:** Present full outputs, not just summaries
+</antigravity_tips>

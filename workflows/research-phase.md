@@ -1,6 +1,5 @@
 # Research Phase Workflow
 
-## DEPRECATED
 
 **This workflow has been consolidated into the gsd-researcher agent.**
 
