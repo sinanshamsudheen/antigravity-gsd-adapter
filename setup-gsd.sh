@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Get-Shit-Done Setup for Antigravity
-# Adapts the ClaudeCode workflow system for use with Antigravity
+# Installs workflows directly to your project's .agent/ directory
 #
-# Usage: ./setup-gsd.sh
+# Usage: ./setup-gsd.sh [project-directory]
 
 set -e
 
@@ -12,10 +12,6 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
-
-# Antigravity looks for workflows in ~/.gemini, not ~/.agent
-GEMINI_DIR="$HOME/.gemini"
-GSD_DEST="$GEMINI_DIR/get-shit-done"
 
 # Get the directory where this script lives (the adapter repo)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -32,263 +28,129 @@ if [ ! -d "$SCRIPT_DIR/workflows" ] || [ ! -f "$SCRIPT_DIR/workflows/define-requ
     exit 1
 fi
 
-echo -e "${GREEN}→${NC} Found Antigravity-native workflows in adapter repository"
+echo -e "${GREEN}✓${NC} Found 20 Antigravity-native workflows"
 
-# Create agent directory structure
-echo -e "${GREEN}→${NC} Creating directory structure..."
-mkdir -p "$GSD_DEST"/{workflows,templates,references}
-
-# Function to update paths in a file
-update_paths() {
-    local file="$1"
-    
-    # Update .claude -> .agent
-    sed -i 's|~/.claude/get-shit-done|~/.gemini/get-shit-done|g' "$file"
-    sed -i 's|\.claude/get-shit-done|.gemini/get-shit-done|g' "$file"
-    
-    # Note: .planning/ paths are intentionally left unchanged (project-specific)
-}
-
-# Copy and update workflows
-echo -e "${GREEN}→${NC} Installing Antigravity-native workflows..."
-cp "$SCRIPT_DIR/workflows/"* "$GSD_DEST/workflows/"
-
-echo -e "${GREEN}✓${NC} Installed workflows:"
-ls -1 "$GSD_DEST/workflows/" | head -5
-echo "  ... and $(ls -1 "$GSD_DEST/workflows/" | wc -l) total workflows"
-
-# Copy templates
-echo -e "${GREEN}→${NC} Installing templates..."
-cp -r "$SCRIPT_DIR/templates/"* "$GSD_DEST/templates/" 2>/dev/null || true
-
-echo -e "${GREEN}✓${NC} Installed templates"
-
-# Copy references
-echo -e "${GREEN}→${NC} Installing references..."
-cp -r "$SCRIPT_DIR/references/"* "$GSD_DEST/references/" 2>/dev/null || true
-
-echo -e "${GREEN}✓${NC} Installation complete"
-
-# Optional: Set up workflows for a specific project
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  Optional: Project Setup${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-echo "Would you like to set up workflows for a specific project?"
-echo "This creates .agent/workflows/ symlinks in your project directory."
-echo ""
-read -p "Enter project directory path (or press Enter to skip): " PROJECT_DIR
-
-if [ -n "$PROJECT_DIR" ]; then
-    # Expand ~ to home directory
-    PROJECT_DIR="${PROJECT_DIR/#\~/$HOME}"
-    
-    # Create directory if it doesn't exist
-    if [ ! -d "$PROJECT_DIR" ]; then
-        echo -e "${YELLOW}Directory doesn't exist. Create it? (y/n)${NC}"
-        read -p "> " CREATE_DIR
-        if [ "$CREATE_DIR" = "y" ] || [ "$CREATE_DIR" = "Y" ]; then
-            mkdir -p "$PROJECT_DIR"
-            echo -e "${GREEN}✓${NC} Created directory: $PROJECT_DIR"
-        else
-            echo -e "${YELLOW}Skipped project setup${NC}"
-            PROJECT_DIR=""
-        fi
-    fi
-    
-    if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
-        echo -e "${GREEN}→${NC} Setting up workflows in: $PROJECT_DIR"
-        mkdir -p "$PROJECT_DIR/.agent/workflows"
-        
-        # Create symlinks
-        for workflow in "$GSD_DEST/workflows/"*.md; do
-            workflow_name=$(basename "$workflow")
-            ln -sf "$GSD_DEST/workflows/$workflow_name" "$PROJECT_DIR/.agent/workflows/$workflow_name" 2>/dev/null || true
-        done
-        
-        echo -e "${GREEN}✓${NC} Created workflow symlinks in $PROJECT_DIR/.agent/workflows/"
-    fi
+# Get project directory
+if [ -n "$1" ]; then
+    PROJECT_DIR="$1"
 else
-    echo -e "${BLUE}→${NC} Skipped project setup. Workflows available globally at ~/.gemini/get-shit-done/"
+    echo ""
+    echo "Enter the path to your project directory:"
+    echo "(This is where we'll create .agent/workflows/)"
+    echo ""
+    read -p "Project directory: " PROJECT_DIR
 fi
 
-# Create README
-cat > "$GSD_DEST/README.md" << 'EOF'
+# Expand ~ to home directory
+PROJECT_DIR="${PROJECT_DIR/#\~/$HOME}"
+
+# Validate directory
+if [ -z "$PROJECT_DIR" ]; then
+    echo -e "${YELLOW}Error: No project directory specified${NC}"
+    echo "Usage: ./setup-gsd.sh [project-directory]"
+    exit 1
+fi
+
+# Create directory if it doesn't exist
+if [ ! -d "$PROJECT_DIR" ]; then
+    echo -e "${YELLOW}Directory doesn't exist: $PROJECT_DIR${NC}"
+    read -p "Create it? (y/n): " CREATE_DIR
+    if [ "$CREATE_DIR" = "y" ] || [ "$CREATE_DIR" = "Y" ]; then
+        mkdir -p "$PROJECT_DIR"
+        echo -e "${GREEN}✓${NC} Created directory"
+    else
+        echo "Setup cancelled."
+        exit 0
+    fi
+fi
+
+echo ""
+echo -e "${GREEN}→${NC} Installing to: $PROJECT_DIR"
+
+# Create .agent directory structure
+mkdir -p "$PROJECT_DIR/.agent"/{workflows,templates,references}
+
+# Copy workflows (plain copy, no symlinks)
+echo -e "${GREEN}→${NC} Copying workflows..."
+cp "$SCRIPT_DIR/workflows/"*.md "$PROJECT_DIR/.agent/workflows/"
+WORKFLOW_COUNT=$(ls -1 "$PROJECT_DIR/.agent/workflows/"*.md 2>/dev/null | wc -l)
+echo -e "${GREEN}✓${NC} Installed $WORKFLOW_COUNT workflows"
+
+# Copy templates
+echo -e "${GREEN}→${NC} Copying templates..."
+if [ -d "$SCRIPT_DIR/templates" ]; then
+    cp -r "$SCRIPT_DIR/templates/"* "$PROJECT_DIR/.agent/templates/" 2>/dev/null || true
+    echo -e "${GREEN}✓${NC} Installed templates"
+fi
+
+# Copy references
+echo -e "${GREEN}→${NC} Copying references..."
+if [ -d "$SCRIPT_DIR/references" ]; then
+    cp -r "$SCRIPT_DIR/references/"* "$PROJECT_DIR/.agent/references/" 2>/dev/null || true
+    echo -e "${GREEN}✓${NC} Installed references"
+fi
+
+# Create README in .agent directory
+cat > "$PROJECT_DIR/.agent/README.md" << 'EOF'
 # Get-Shit-Done for Antigravity
 
-Version: 1.5.20 (adapted for Antigravity)
+This directory contains workflows, templates, and references for structured project development.
 
-## Overview
+## Usage
 
-Get-Shit-Done (GSD) is a comprehensive workflow system for structured project development. It guides you from initial PRD through planning, execution, verification, and deployment.
+All workflows are accessible via Antigravity's `@[filename]` autocomplete.
 
-## Quick Start: PRD → Deployment
+**To use a workflow:**
 
-### 1. Start with Your PRD
-You have a `PRD.md` file. Great! That's your starting point.
+Type `@[` and Antigravity will show available workflows.
 
-### 2. Define Requirements
-Extract concrete requirements from your PRD:
-```
-Use workflow: define-requirements.md
-```
-Creates: `.planning/REQUIREMENTS.md`
-
-### 3. Create Project Brief  
-Document high-level project context:
-```
-Use workflow: discovery-phase.md
-```
-Creates: `.planning/PROJECT.md`
-
-### 4. Create Roadmap
-Break work into phases based on requirements:
-```
-Use workflow: create-roadmap.md
-```
-Creates: `.planning/ROADMAP.md` + phase directories
-
-### 5. Plan Each Phase
-For each phase in your roadmap:
-```
-Use workflow: plan-phase.md
-```
-Creates detailed execution plans
-
-### 6. Execute Plans
-Run the plans with verification:
-```
-Use workflow: execute-plan.md
-```
-Implements features with testing
-
-### 7. Verify Work
-After execution:
-```
-Use workflow: verify-phase.md
-```
-Ensures quality and completeness
-
-### 8. Transition Between Phases
-Move to next phase:
-```
-Use workflow: transition.md
-```
+Example: `@[define-requirements.md]`
 
 ## Available Workflows
 
-### Planning
+See `workflows/` directory for all 20 workflows.
+
+**Most common:**
 - `define-requirements.md` - Extract requirements from PRD
-- `discovery-phase.md` - Create project brief
-- `create-roadmap.md` - Define implementation phases
-- `plan-phase.md` - Create detailed phase plans
-
-### Execution
-- `execute-plan.md` - Run implementation plans
-- `execute-phase.md` - Execute entire phase
-
-### Verification
-- `verify-work.md` - Verify completed work
-- `verify-phase.md` - Comprehensive phase verification
-
-### Milestone Management
-- `create-milestone.md` - Define project milestone
-- `complete-milestone.md` - Finish and document milestone
-- `discuss-milestone.md` - Review milestone scope
-
-### Research & Discovery
-- `research-phase.md` - Investigate unknowns
-- `research-project.md` - Project-level research
-- `map-codebase.md` - Understand existing code
-
-### Debugging
-- `debug.md` - Systematic debugging workflow
-- `diagnose-issues.md` - Issue investigation
-
-### Project Management
+- `create-roadmap.md` - Build phase-based roadmap
+- `execute-phase.md` - Execute a project phase
+- `verify-phase.md` - Verify phase completion
 - `resume-project.md` - Continue after interruption
-- `transition.md` - Move between phases
-- `discuss-phase.md` - Phase planning discussion
 
-## Directory Structure
+## Structure
 
 ```
-~/.gemini/get-shit-done/
-├── workflows/          # All workflow definitions
-├── templates/          # Templates for artifacts
-├── references/         # Reference documentation
-└── README.md           # This file
-
-<project>/.planning/
-├── PROJECT.md          # Project brief
-├── REQUIREMENTS.md     # All requirements
-├── ROADMAP.md          # Phase breakdown
-├── STATE.md            # Current progress
-└── phases/
-    ├── 01-foundation/
-    │   └── plans/      # Execution plans
-    ├── 02-features/
-    └── ...
+.agent/
+├── workflows/       # 20 workflow files
+├── templates/       # Templates for planning docs
+├── references/      # Reference documentation
+└── README.md        # This file
 ```
 
-## Configuration
+## Next Steps
 
-Project-level config at `.planning/config.json`:
+1. Create your `PRD.md` in project root
+2. Use `@[define-requirements.md]` to start
+3. Follow the workflow sequence
 
-```json
-{
-  "mode": "interactive",     // yolo | interactive | custom
-  "depth": "standard",        // quick | standard | comprehensive
-  "parallelization": {
-    "enabled": true,
-    "plan_level": true
-  }
-}
-```
-
-## Integration with Antigravity
-
-Workflows are available in your project's `.agent/workflows/` directory. Reference them when asking Antigravity for help:
-
-**Example:**
-> "I have a PRD.md file. Can you help me use the define-requirements workflow to extract structured requirements?"
-
-Or simply mention the workflow file:
-> "Let's use @[define-requirements.md] to create REQUIREMENTS.md from my PRD"
-
-## Philosophy
-
-GSD enforces:
-- **Structure**: Clear phases, plans, and verification
-- **Traceability**: Every requirement maps to a phase
-- **Incremental delivery**: Each phase delivers working value
-- **Quality gates**: Verification before moving forward
-- **Git integration**: Commits track progress
-
-## Support
-
-For detailed workflow instructions, view the individual workflow files in `~/.gemini/get-shit-done/workflows/`
-
-Each workflow contains:
-- Purpose and context
-- Required reading
-- Step-by-step process
-- Success criteria
+For full guide, see the adapter repository.
 EOF
 
 echo ""
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}  ✓ Get-Shit-Done successfully installed!${NC}"
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}  ✓ Installation Complete!${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo "Installation location: $GSD_DEST"
+echo "Installed to: $PROJECT_DIR/.agent/"
 echo ""
-echo -e "${BLUE}Next steps:${NC}"
-echo "  1. Read: $GSD_DEST/README.md"
-echo "  2. Start with your PRD.md"
-echo "  3. Use workflows to structure your project"
+echo "Workflows: $WORKFLOW_COUNT files"
+echo "Templates: ✓"
+echo "References: ✓"
 echo ""
-echo -e "${YELLOW}Example workflow:${NC}"
-echo "  PRD → define-requirements → discovery-phase → create-roadmap → plan-phase → execute"
+echo -e "${GREEN}Next steps:${NC}"
+echo "  1. Create PRD.md in $PROJECT_DIR"
+echo "  2. In Antigravity, type @[ to see workflows"
+echo "  3. Start with @[define-requirements.md]"
+echo ""
+echo -e "${YELLOW}Tip:${NC} Type @[ in Antigravity to autocomplete workflow files!"
 echo ""

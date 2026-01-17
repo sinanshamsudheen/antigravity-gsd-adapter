@@ -35,28 +35,27 @@ Get-Shit-Done (GSD) is a comprehensive workflow system originally built for Clau
 
 ### Installation
 
-**One-command setup:**
+**Super simple - 3 commands:**
 
 ```bash
 git clone https://github.com/sinanshamsudheen/antigravity-gsd-adapter
 cd antigravity-gsd-adapter
-chmod +x setup-gsd.sh
-./setup-gsd.sh
+./setup-gsd.sh ~/path/to/your/project
 ```
 
 **That's it!** 🎉 
 
-The adapter includes:
-- ✅ **20 Antigravity-native workflows** (already included - no external cloning needed!)
-- ✅ All templates and references
-- ✅ Installs to `~/.gemini/get-shit-done/`
-- ✅ Optional project-specific setup
+What it does:
+- ✅ Copies all 20 workflows to `your-project/.agent/workflows/`
+- ✅ Copies templates and references
+- ✅ **No external cloning** - everything is included
+- ✅ **No symlinks** - plain file copies
+- ✅ **No global installation** - per-project setup
 
-What the script does:
-1. **Installs workflows** from this adapter (all Antigravity-optimized)
-2. **Copies templates** for creating planning documents
-3. **Installs to** `~/.gemini/get-shit-done/` (where Antigravity looks)  
-4. **Optionally** sets up workflows for a specific project directory
+**Why this approach?**
+- Antigravity's `@[filename]` autocomplete only shows files from **current workspace**
+- Installing to `.agent/` in your project makes workflows instantly accessible
+- Each project can have its own version - no conflicts
 
 You'll see:
 ```
