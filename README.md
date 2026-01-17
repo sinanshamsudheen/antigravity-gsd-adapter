@@ -88,23 +88,32 @@ Repeat for next phase
 🚀 Ship it!
 ```
 
-### Example: Your First Project
 
 **1. Start with a PRD (or just an idea)**
 
 ```
 Prompt to Antigravity:
-"I have a PRD for a task management app. /define-requirements 
-to extract structured requirements."
+"I have a PRD for a task management app. @[define-requirements.md]"
 ```
 
 **2. Let Antigravity guide you through the workflows**
 
+**Two ways to access workflows:**
+
+**Method 1: @ syntax (works for ALL workflows):**
 ```
-Prompt: "Create project brief using /discovery-phase"
-Prompt: "Build roadmap using /create-roadmap"
-Prompt: "Plan Phase 1 with /plan-phase"
-Prompt: "Execute plan 01 with /execute-plan"
+@[define-requirements.md]
+@[discovery-phase.md] 
+@[create-roadmap.md]
+```
+
+**Method 2: Slash commands (some workflows):**
+```
+/create-roadmap
+/execute-phase
+```
+
+> 💡 **Tip:** Use @[workflow-name.md] for reliable access to all 20 workflows!
 ```
 
 **3. Watch your project take shape**
