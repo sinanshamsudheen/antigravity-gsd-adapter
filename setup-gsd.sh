@@ -17,80 +17,22 @@ NC='\033[0m' # No Color
 GEMINI_DIR="$HOME/.gemini"
 GSD_DEST="$GEMINI_DIR/get-shit-done"
 
+# Get the directory where this script lives (the adapter repo)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}  Get-Shit-Done Setup for Antigravity${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-# Find get-shit-done directory (looking for workflows folder as marker)
-GSD_SOURCE=""
-if [ -d "./get-shit-done/get-shit-done/workflows" ]; then
-    GSD_SOURCE="./get-shit-done/get-shit-done"
-elif [ -d "./get-shit-done/workflows" ]; then
-    GSD_SOURCE="./get-shit-done"
-elif [ -d "../get-shit-done/get-shit-done/workflows" ]; then
-    GSD_SOURCE="../get-shit-done/get-shit-done"
-elif [ -d "../get-shit-done/workflows" ]; then
-    GSD_SOURCE="../get-shit-done"
-elif [ -d "$HOME/get-shit-done/get-shit-done/workflows" ]; then
-    GSD_SOURCE="$HOME/get-shit-done/get-shit-done"
-elif [ -d "$HOME/get-shit-done/workflows" ]; then
-    GSD_SOURCE="$HOME/get-shit-done"
-fi
-
-# If not found, offer to clone it automatically
-if [ -z "$GSD_SOURCE" ] || [ ! -d "$GSD_SOURCE/workflows" ]; then
-    echo -e "${YELLOW}→${NC} get-shit-done repository not found locally"
-    echo ""
-    echo "Would you like to clone it automatically?"
-    echo "Repository: https://github.com/glittercowboy/get-shit-done"
-    echo ""
-    read -p "Clone now? (Y/n): " CLONE_RESPONSE
-    
-    # Default to yes if user just presses Enter
-    CLONE_RESPONSE=${CLONE_RESPONSE:-Y}
-    
-    if [ "$CLONE_RESPONSE" = "y" ] || [ "$CLONE_RESPONSE" = "Y" ]; then
-        echo -e "${GREEN}→${NC} Cloning get-shit-done..."
-        
-        # Clone to parent directory
-        CLONE_DIR="../get-shit-done"
-        if ! git clone https://github.com/glittercowboy/get-shit-done "$CLONE_DIR" 2>/dev/null; then
-            # If parent fails, try current directory
-            CLONE_DIR="./get-shit-done"
-            if ! git clone https://github.com/glittercowboy/get-shit-done "$CLONE_DIR" 2>/dev/null; then
-                echo -e "${YELLOW}Error: Failed to clone repository${NC}"
-                echo "Please ensure you have git installed and internet connection."
-                exit 1
-            fi
-        fi
-        
-        # Find the workflows in cloned repo
-        if [ -d "$CLONE_DIR/get-shit-done/workflows" ]; then
-            GSD_SOURCE="$CLONE_DIR/get-shit-done"
-        elif [ -d "$CLONE_DIR/workflows" ]; then
-            GSD_SOURCE="$CLONE_DIR"
-        fi
-        
-        echo -e "${GREEN}✓${NC} Repository cloned successfully"
-    else
-        echo ""
-        echo -e "${YELLOW}Setup cancelled.${NC}"
-        echo ""
-        echo "To run setup, you need the get-shit-done repository."
-        echo "Clone it manually with:"
-        echo "  git clone https://github.com/glittercowboy/get-shit-done"
-        exit 0
-    fi
-fi
-
-# Final check
-if [ -z "$GSD_SOURCE" ] || [ ! -d "$GSD_SOURCE/workflows" ]; then
-    echo -e "${YELLOW}Error: Could not locate get-shit-done workflows${NC}"
+# Check if workflows exist in our repo
+if [ ! -d "$SCRIPT_DIR/workflows" ] || [ ! -f "$SCRIPT_DIR/workflows/define-requirements.md" ]; then
+    echo -e "${YELLOW}Error: Workflows not found in adapter repository${NC}"
+    echo "Expected location: $SCRIPT_DIR/workflows/"
     exit 1
 fi
 
-echo -e "${GREEN}→${NC} Found get-shit-done at: $GSD_SOURCE"
+echo -e "${GREEN}→${NC} Found Antigravity-native workflows in adapter repository"
 
 # Create agent directory structure
 echo -e "${GREEN}→${NC} Creating directory structure..."
@@ -108,55 +50,24 @@ update_paths() {
 }
 
 # Copy and update workflows
-echo -e "${GREEN}→${NC} Copying workflows..."
-cp -r "$GSD_SOURCE/workflows/"* "$GSD_DEST/workflows/"
+echo -e "${GREEN}→${NC} Installing Antigravity-native workflows..."
+cp "$SCRIPT_DIR/workflows/"* "$GSD_DEST/workflows/"
 
-echo -e "${GREEN}→${NC} Updating workflow paths..."
-for workflow in "$GSD_DEST/workflows/"*.md; do
-    if [ -f "$workflow" ]; then
-        update_paths "$workflow"
-        echo "  ✓ $(basename "$workflow")"
-    fi
-done
+echo -e "${GREEN}✓${NC} Installed workflows:"
+ls -1 "$GSD_DEST/workflows/" | head -5
+echo "  ... and $(ls -1 "$GSD_DEST/workflows/" | wc -l) total workflows"
 
-# Copy and update templates
-echo -e "${GREEN}→${NC} Copying templates..."
-cp -r "$GSD_SOURCE/templates/"* "$GSD_DEST/templates/" 2>/dev/null || true
+# Copy templates
+echo -e "${GREEN}→${NC} Installing templates..."
+cp -r "$SCRIPT_DIR/templates/"* "$GSD_DEST/templates/" 2>/dev/null || true
 
-echo -e "${GREEN}→${NC} Updating template paths..."
-for template in "$GSD_DEST/templates/"*.md "$GSD_DEST/templates/"*.json; do
-    if [ -f "$template" ]; then
-        update_paths "$template"
-        echo "  ✓ $(basename "$template")"
-    fi
-done
+echo -e "${GREEN}✓${NC} Installed templates"
 
-# Copy template subdirectories
-if [ -d "$GSD_SOURCE/templates/codebase" ]; then
-    echo -e "${GREEN}→${NC} Copying template/codebase..."
-    cp -r "$GSD_SOURCE/templates/codebase" "$GSD_DEST/templates/"
-    for file in "$GSD_DEST/templates/codebase/"*; do
-        if [ -f "$file" ]; then
-            update_paths "$file"
-        fi
-    done
-fi
+# Copy references
+echo -e "${GREEN}→${NC} Installing references..."
+cp -r "$SCRIPT_DIR/references/"* "$GSD_DEST/references/" 2>/dev/null || true
 
-if [ -d "$GSD_SOURCE/templates/research-project" ]; then
-    echo -e "${GREEN}→${NC} Copying template/research-project..."
-    cp -r "$GSD_SOURCE/templates/research-project" "$GSD_DEST/templates/"
-    for file in "$GSD_DEST/templates/research-project/"*; do
-        if [ -f "$file" ]; then
-            update_paths "$file"
-        fi
-    done
-fi
-
-# Copy references if they exist
-if [ -d "$GSD_SOURCE/references" ]; then
-    echo -e "${GREEN}→${NC} Copying references..."
-    cp -r "$GSD_SOURCE/references/"* "$GSD_DEST/references/" 2>/dev/null || true
-fi
+echo -e "${GREEN}✓${NC} Installation complete"
 
 # Optional: Set up workflows for a specific project
 echo ""

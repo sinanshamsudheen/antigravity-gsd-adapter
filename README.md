@@ -44,13 +44,19 @@ chmod +x setup-gsd.sh
 ./setup-gsd.sh
 ```
 
-The script will:
-1. **Auto-detect** if get-shit-done repo exists locally
-2. **Offer to clone it** if not found (just press Enter to confirm)
-3. **Install globally** to `~/.agent/get-shit-done/`
-4. **Optionally set up** workflows for a specific project directory
+**That's it!** 🎉 
 
-**That's it!** 🎉
+The adapter includes:
+- ✅ **20 Antigravity-native workflows** (already included - no external cloning needed!)
+- ✅ All templates and references
+- ✅ Installs to `~/.gemini/get-shit-done/`
+- ✅ Optional project-specific setup
+
+What the script does:
+1. **Installs workflows** from this adapter (all Antigravity-optimized)
+2. **Copies templates** for creating planning documents
+3. **Installs to** `~/.gemini/get-shit-done/` (where Antigravity looks)  
+4. **Optionally** sets up workflows for a specific project directory
 
 You'll see:
 ```
